@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<title>GAG PET KALKULATOR</title>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FC65KZWJ1V"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-FC65KZWJ1V');
+</script>
+
+<style>
+  body{background:#0f1113;color:#e6e6e6;font-family:sans-serif;padding:24px;}
+  .row{display:flex;gap:12px;align-items:center;margin-bottom:10px;}
+  input[type=number]{background:#141617;border:1px solid #333;color:#fff;padding:8px;border-radius:6px;width:140px}
+  button{background:#17202a;border:1px solid #2d3b45;color:#fff;padding:8px 12px;border-radius:8px;cursor:pointer}
+  table{width:760px;border-collapse:collapse;margin-top:18px}
+  th,td{padding:14px;border:1px solid #2b2f33;text-align:left}
+  thead th{background:#12181b;color:#ffd24d}
+  tbody tr:nth-child(odd){background:#141618}
+  tbody tr:nth-child(even){background:#181b1d}
+  .badge{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px}
+  .badge.small{background:#2e86c1}
+  .badge.ok{background:#28b463}
+  .badge.fat{background:#d68910}
+  .badge.mid{background:#a569bd}
+  .badge.huge{background:#e74c3c}
+  .badge.titan{background:#7d3c98}
+  .badge.insane{background:#c0392b}
+</style>
+</head>
+<body>
+  <h2>Kalkulator Pet GAG</h2>
+
+  <div class="row">
+    <label>Berat Pet Sekarang (kg):</label>
+    <input id="currentWeight" type="number" step="0.01" min="0.7" value="1.60" />
+    <label>Umur Petnya (max 100):</label>
+    <input id="currentAge" type="number" min="1" max="100" value="1" />
+    <div class="controls">
+      <button id="btnCalc">klik biar muncul</button>
+      <button id="btnShowAll">semua umur</button>
+    </div>
+  </div>
+
+  <h3>hmm</h3>
+  <table>
+    <thead>
+      <tr><th style="width:120px">Umur</th><th style="width:160px">Berat (kg)</th><th>Status</th></tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+<script>
+  // Rumus utama
+  function projectedWeight(w0, a0, a){
+    return w0 * (a + 10) / (a0 + 10);
+  }
+
+  // Tentukan status dari berat di age=1
+  function getStatus(weightAt1){
+    if (weightAt1 >= 1 && weightAt1 <= 1.5) return {label:"Kecil", cls:"small"};
+    if (weightAt1 > 1.5 && weightAt1 <= 2.0) return {label:"Okelah", cls:"ok"};
+    if (weightAt1 > 2.0 && weightAt1 <= 2.8) return {label:"Gemuk", cls:"fat"};
+    if (weightAt1 > 2.8 && weightAt1 <= 4.0) return {label:"Nanggung", cls:"mid"};
+    if (weightAt1 > 4.0 && weightAt1 <= 7.9) return {label:"Huge", cls:"huge"};
+    if (weightAt1 >= 8.0 && weightAt1 <= 9.9) return {label:"Titan", cls:"titan"};
+    if (weightAt1 >= 10.0 && weightAt1 <= 12.0) return {label:"Godly", cls:"insane"};
+    return {label:"Unknown", cls:""};
+  }
+
+  const agesDefault = [1,10,20,30,40,50,60,70,80,90,100];
+
+  function formatNum(n){ return Number(n).toFixed(2); }
+
+  function buildTable(ages){
+    const w0 = parseFloat(document.getElementById('currentWeight').value);
+    const a0 = parseFloat(document.getElementById('currentAge').value);
+    if (!w0 || !a0 || a0 <= 0 || a0 > 100){
+      alert('Masukkan nilai yang valid: age 1-100, weight > 0.7');
+      return;
+    }
+
+    // Cari weight di age=1
+    const weightAt1 = projectedWeight(w0, a0, 1);
+    const status = getStatus(weightAt1);
+
+    const tbody = document.getElementById('tbody');
+    tbody.innerHTML = '';
+
+    for (let a of ages){
+      const projected = projectedWeight(w0, a0, a);
+
+      const tr = document.createElement('tr');
+
+      const tdA = document.createElement('td');
+      tdA.textContent = a;
+      tr.appendChild(tdA);
+
+      const tdW = document.createElement('td');
+      tdW.textContent = formatNum(projected);
+      tr.appendChild(tdW);
+
+      const tdS = document.createElement('td');
+      const badge = document.createElement('span');
+      badge.className = 'badge ' + status.cls;
+      badge.textContent = status.label;
+      tdS.appendChild(badge);
+      tr.appendChild(tdS);
+
+      tbody.appendChild(tr);
+    }
+  }
+
+  // init
+  buildTable(agesDefault);
+
+  document.getElementById('btnCalc').addEventListener('click', () => buildTable(agesDefault));
+  document.getElementById('btnShowAll').addEventListener('click', () => {
+    const all = Array.from({length:100}, (_,i)=>i+1);
+    buildTable(all);
+  });
+</script>
+</body>
+</html>
